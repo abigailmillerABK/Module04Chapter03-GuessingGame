@@ -191,8 +191,8 @@ void runServer(int& randomNumber, int& numUsers, int& numNamedUsers) {
             if (numUsers >= 2) {
                 if (numNamedUsers == numUsers) {
                     //Get name
-                    newBuffer.data = (char*)event.peer->data;
-                    newBuffer.dataSize = (size_t)(sizeof(newBuffer.data) + 1);
+                    Message message;
+                    Buffer newBuffer = Buffer((size_t)sizeof((char*)event.peer->data)+1, (char*)event.peer->data);
                     name = message.DeSerialize(&newBuffer);
                     //Get number
                     std::string inputstr = (std::string)(input);
@@ -230,7 +230,11 @@ void runServer(int& randomNumber, int& numUsers, int& numNamedUsers) {
 
         case ENET_EVENT_TYPE_DISCONNECT:
             numUsers--;
-            cout << (char*)event.peer->data << " disconnected." << endl;
+            //Deserialize name
+            Message message;
+            Buffer newBuffer = Buffer((size_t)sizeof((char*)event.peer->data)+1, (char*)event.peer->data);
+            name = message.DeSerialize(&newBuffer);
+            cout << name << " disconnected." << endl;
             /* Reset the peer's client information. */
             event.peer->data = NULL;
         }

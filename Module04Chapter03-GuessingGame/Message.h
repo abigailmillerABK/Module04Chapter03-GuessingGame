@@ -8,7 +8,7 @@ struct Message {
 	std::string time;
 
 	Buffer* Serialize(){
-		Buffer* newBuffer = new Buffer((size_t)(message.size()+1), (char* )(message.c_str()));
+		Buffer* newBuffer = new Buffer((size_t)(message.size()+1), (char*)(message.c_str()));
 		return newBuffer;
 	}
 
