@@ -137,12 +137,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Module04Chapter01-Networking\Module04Chapter01-Networking\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\Module04Chapter01-Networking\Module04Chapter01-Networking\Buffer.h" />
     <ClInclude Include="..\..\Module04Chapter01-Networking\Module04Chapter01-Networking\Message.h" />
     <ClInclude Include="..\..\Module04Chapter01-Networking\Module04Chapter01-Networking\User.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GuessingGame.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

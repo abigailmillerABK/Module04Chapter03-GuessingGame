@@ -15,11 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Module04Chapter01-Networking\Module04Chapter01-Networking\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\Module04Chapter01-Networking\Module04Chapter01-Networking\Buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -29,5 +24,10 @@
     <ClInclude Include="..\..\Module04Chapter01-Networking\Module04Chapter01-Networking\User.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GuessingGame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
