@@ -52,7 +52,7 @@ void ServerOuput(User& thisUser) {
             switch (event.type)
             {
             case ENET_EVENT_TYPE_RECEIVE:
-                cout << (char*)event.packet->data
+                std::cout << (char*)event.packet->data
                     << endl;
                 /* Clean up the packet now that we're done using it. */
                 enet_packet_destroy(event.packet);
@@ -135,7 +135,7 @@ void runServer(int& randomNumber, int& numUsers, int& numNamedUsers) {
         {
         case ENET_EVENT_TYPE_CONNECT:
             numUsers++;
-            cout << "A new client connected from "
+            std::cout << "A new client connected from "
                 << event.peer->address.host
                 << ":" << event.peer->address.port
                 << endl;
@@ -155,8 +155,8 @@ void runServer(int& randomNumber, int& numUsers, int& numNamedUsers) {
             int number;
 
             if (numNamedUsers != numUsers) {
-                if (input.find("*SETUSERID*") != std::string::npos) { //If name convention
-                    name = input.substr(11);
+                if (input.find("*SETUSERID*") != std::string::npos) { //If name convention //input.substr(11);
+                    name = "NAME";
                     event.peer->data = (char*)(name.c_str());
                     numNamedUsers++;
 
@@ -234,7 +234,7 @@ void runServer(int& randomNumber, int& numUsers, int& numNamedUsers) {
             Message message;
             Buffer newBuffer = Buffer((size_t)sizeof((char*)event.peer->data)+1, (char*)event.peer->data);
             name = message.DeSerialize(&newBuffer);
-            cout << name << " disconnected." << endl;
+            std::cout << name << " disconnected." << endl;
             /* Reset the peer's client information. */
             event.peer->data = NULL;
         }
@@ -259,15 +259,15 @@ int main(int argc, char** argv)
     if (enet_initialize() != 0)
     {
         fprintf(stderr, "An error occurred while initializing ENet.\n");
-        cout << "An error occurred while initializing ENet." << endl;
+        std::cout << "An error occurred while initializing ENet." << endl;
         return EXIT_FAILURE;
     }
     atexit(enet_deinitialize);
 
 
     
-    cout << "1) Create Server " << endl;
-    cout << "2) Create Client " << endl;
+    std::cout << "1) Create Server " << endl;
+    std::cout << "2) Create Client " << endl;
     int UserInput;
     cin >> UserInput;
     if (UserInput == 1)
@@ -320,7 +320,7 @@ int main(int argc, char** argv)
             if (enet_host_service(client, &event, 5000) > 0 &&
                 event.type == ENET_EVENT_TYPE_CONNECT)
             {
-                cout << "Connection to 127.0.0.1:1234 succeeded." << endl;
+                std::cout << "Connection to 127.0.0.1:1234 succeeded." << endl;
             }
             else
             {
@@ -328,7 +328,7 @@ int main(int argc, char** argv)
                 /* received. Reset the peer in the event the 5 seconds   */
                 /* had run out without any significant event.            */
                 enet_peer_reset(peer);
-                cout << "Connection to 127.0.0.1:1234 failed." << endl;
+                std::cout << "Connection to 127.0.0.1:1234 failed." << endl;
             }
 
             std::thread outputThread(ServerOuput, std::ref(thisUser));
@@ -342,7 +342,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        cout << "Invalid Input" << endl;
+        std::cout << "Invalid Input" << endl;
     }
     
     if (server != nullptr)
