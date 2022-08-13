@@ -114,7 +114,7 @@ std::string RunGame(int& randomNumber, std::string name = "", int guess = -1) {
             text += " which was lower than the magic number\n";
         }
         else {
-            text += ". You guessed correctly!";
+            text += ". They guessed correctly!";
             return text;
         }
     }
@@ -151,28 +151,36 @@ void runServer(int& randomNumber, int& numUsers, int& numNamedUsers) {
             size_t dataLength = event.packet->dataLength;
             Buffer newBuffer = Buffer(dataLength, data);
             std::string input = message.DeSerialize(&newBuffer);
+            bool takeNumericInput = true;
 
-            int number;
+            int number = -1;
 
             if (numNamedUsers != numUsers) {
+                takeNumericInput = false;
                 if (input.find("*SETUSERID*") != std::string::npos) { //If name convention //input.substr(11);
-                    name = "NAME";
-                    event.peer->data = (char*)(name.c_str());
+                    name = input.substr(11);
+                    message.message = name;
+                    
+                    //strcpy_s((char*)event.peer->data, sizeof(name.c_str()) + 1, name.c_str());
+                    Buffer nameBuffer = *message.Serialize();
+                    event.peer->data = new char[nameBuffer.dataSize];
+                    strcpy_s((char*)event.peer->data, (int)nameBuffer.dataSize, nameBuffer.data);
+
                     numNamedUsers++;
 
                     
 
 
-                    if (numNamedUsers == numUsers && numUsers >= 2) {
-                        output = "All users registered.\nMagic number selected. Begin guessing";
-                        message.message = output;
-                        Buffer* newBuffer = message.Serialize();
-                        ENetPacket* packet = enet_packet_create(newBuffer->data,
-                            newBuffer->dataSize,
-                            ENET_PACKET_FLAG_RELIABLE);
-                        enet_host_broadcast(server, 0, packet);
-                    }
-                    else {
+                    //if (numNamedUsers == numUsers && numUsers >= 2) {
+                    //    //output = "All users registered.\nHit enter to start.";
+                    //    message.message = output;
+                    //    Buffer* newBuffer = message.Serialize();
+                    //    ENetPacket* packet = enet_packet_create(newBuffer->data,
+                    //        newBuffer->dataSize,
+                    //        ENET_PACKET_FLAG_RELIABLE);
+                    //    enet_host_broadcast(server, 0, packet);
+                    //}
+                    if (numNamedUsers != numUsers || numUsers < 2) { //Else, float to next condition
                         output = "User ID Set.\n";
                         message.message = output;
                         Buffer* newBuffer = message.Serialize();
@@ -180,11 +188,12 @@ void runServer(int& randomNumber, int& numUsers, int& numNamedUsers) {
                             newBuffer->dataSize,
                             ENET_PACKET_FLAG_RELIABLE);
                         enet_peer_send(event.peer, 0, packet);
-                    }
-                    enet_host_flush(server);
 
-                    enet_packet_destroy(event.packet);
-                    return;
+                        enet_host_flush(server);
+                        enet_packet_destroy(event.packet);
+                        return;
+                    }
+                    
                 }
 
             }
@@ -194,25 +203,28 @@ void runServer(int& randomNumber, int& numUsers, int& numNamedUsers) {
                     Message message;
                     Buffer newBuffer = Buffer((size_t)sizeof((char*)event.peer->data)+1, (char*)event.peer->data);
                     name = message.DeSerialize(&newBuffer);
-                    //Get number
-                    std::string inputstr = (std::string)(input);
-                    auto pos = inputstr.find("Guessed :");
-                    std::string substring = inputstr.substr(pos + 9);                    
-                    if (isNumber(substring) == false) { //If bad input
-                        output = name + " submitted a faulty entry.\nTry entering a whole integer between 1 and 100\n";
-                        message.message = output;
-                        Buffer* newBuffer = message.Serialize();
+                    //name = parseLetters(name);
+                    if (takeNumericInput) {
+                        //Get number
+                        std::string inputstr = (std::string)(input);
+                        auto pos = inputstr.find("Guessed :");
+                        std::string substring = inputstr.substr(pos + 9);
+                        if (isNumber(substring) == false) { //If bad input
+                            output = name + " submitted a faulty entry.\nTry entering a whole integer between 1 and 100\n";
+                            message.message = output;
+                            Buffer* newBuffer = message.Serialize();
 
-                        //Send back info
-                        ENetPacket* packet = enet_packet_create(newBuffer->data,
-                            newBuffer->dataSize,
-                            ENET_PACKET_FLAG_RELIABLE);
-                        enet_host_broadcast(server, 0, packet);
-                        enet_host_flush(server);
-                        enet_packet_destroy(event.packet);
-                        return;
+                            //Send back info
+                            ENetPacket* packet = enet_packet_create(newBuffer->data,
+                                newBuffer->dataSize,
+                                ENET_PACKET_FLAG_RELIABLE);
+                            enet_host_broadcast(server, 0, packet);
+                            enet_host_flush(server);
+                            enet_packet_destroy(event.packet);
+                            return;
+                        }
+                        number = stoi(substring);
                     }
-                    number = stoi(substring);
                     if (numNamedUsers == numUsers) {
                         canGuess = true;
                         output = RunGame(randomNumber, name, number);
@@ -234,6 +246,7 @@ void runServer(int& randomNumber, int& numUsers, int& numNamedUsers) {
             Message message;
             Buffer newBuffer = Buffer((size_t)sizeof((char*)event.peer->data)+1, (char*)event.peer->data);
             name = message.DeSerialize(&newBuffer);
+            //name = parseLetters(name);
             std::cout << name << " disconnected." << endl;
             /* Reset the peer's client information. */
             event.peer->data = NULL;
